@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <style>
+        #cardList{
+            height:790px;
+            width:500px;
+            overflow: auto;
+            float:left;
+            background-color:rgba(95, 95, 104, 0.575);
+        }
+        #cardListName{
+            height:790px;
+            width:300px;
+            overflow: auto;
+            float:left;
+            background-color:rgba(125, 125, 129, 0.575);
+        }
+        #start{
+            height:790px;
+            line-height: 790px;
+            width:120px;
+            float:right;
+            text-align:center;
+            font-size: xx-large;
+            background-color: #4CAF50; 
+            border: none;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #onSelect{
+            margin-bottom: 7px;
+            text-align:center;
+            line-height: 50px;
+            background-color: #539155;
+            height: 50px; 
+        }
+        #noSelect{
+            margin-bottom: 7px;
+            text-align:center;
+            height: 50px; 
+            line-height: 50px;
+            background-color: #2c472d; 
+            color: white;
+        }
+        #CoverSon{
+            margin-bottom: 7px;
+            text-align:center;
+            line-height: 25px;
+            background-color: #1e9121b9;
+            height: 25px; 
+            color: white;
+        }
+        #newCover{
+            height:790px;
+            line-height: 790px;
+            width:150px;
+            float:right;
+            text-align:center;
+            font-size: xx-large;
+            background-color: #146416; 
+            border: none;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #delet{
+            height:790px;
+            line-height: 790px;
+            width:130px;
+            float:right;
+            text-align:center;
+            font-size: x-large;
+            background-color: #19472b; 
+            border: none;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+        }
+        #change{
+            height:790px;
+            line-height: 790px;
+            width:130px;
+            float:right;
+            text-align:center;
+            font-size: x-large;
+            background-color: #49c779; 
+            border: none;
+            color: rgb(46, 37, 37);
+            text-decoration: none;
+            display: inline-block;
+        }
+        #showScore{
+            height:100px;
+            text-align:center;
+            background-color: #272623c5; 
+            color: rgb(207, 176, 38);
+            font-size: xx-large;
+            line-height: 100px;
+
+        }
+    </style>
+    <script>
+        //ServentArr={{ServentList}};
+        var cardListName=[]
+        var cardList=[]
+        {% for i in CDN %}
+            cardListName.push("{{i}}");
+        {% endfor %}
+        {% for ii in CD %}
+            var locat=[];
+            {% for iii in ii %}
+                locat.push("{{iii}}");
+            {% endfor %}
+            cardList.push(locat);
+        {% endfor %}
+        function deleteEle(father){
+            //console.log(!true);
+            while(father.hasChildNodes()) 
+            {
+                father.removeChild(father.lastChild);
+            }
+        }
+        window.onload=function(){
+            var Cl=document.getElementById("cardList");
+            var Cln=document.getElementById("cardListName");
+            var inputCN=document.getElementById("CN");
+            var inputCC=document.getElementById("CC");
+            var inputCD=document.getElementById("CD");
+            var scorePeople=document.createElement("div");
+            scorePeople.id='showScore';
+            scorePeople.appendChild(document.createTextNode("Your SCORE: {{score}}"));
+            Cl.appendChild(scorePeople)
+            inputCN.value=cardListName[0];
+            function listCard(name){
+                for (first of cardListName){
+                    var coverName=document.createElement("div");
+                    coverName.id='onSelect';
+                    coverName.name=first;
+                    coverName.appendChild(document.createTextNode(first));
+                    coverName.onclick=function () {
+                        var inde=cardListName.indexOf(this.name);
+                        deleteEle(Cln);
+                        for(ii of cardList[inde]){
+                            var sc=document.createElement("div");
+                            sc.appendChild(document.createTextNode(ii));
+                            sc.id='CoverSon';
+                            Cln.appendChild(sc);
+                        }
+                        for(iii of Cl.childNodes){
+                            if (iii.id!='showScore'){
+                                iii.id='onSelect';
+                            }
+                        }
+                        this.id='noSelect';
+                        inputCN.value=this.name;
+                        inputCC.value=this.name;
+                        inputCD.value=this.name;
+                    }
+                    Cl.appendChild(coverName);
+                    if (cardListName.indexOf(first)==0){
+                        coverName.onclick();
+                    }
+                }
+
+            }
+            //第一列
+            listCard(Cl[0]);
+            
+
+            
+
+        }
+    </script>
+
+</head>
+<body>
+    <div id='cardList'>
+
+    </div>
+    <div id='cardListName'>
+        
+    </div>
+    <form name="inp" action="" method="post">
+        <input type="submit" value="新建套牌" id='newCover' name='match'>
+        <input type="hidden" value='{{nam}}' name='name'>
+        <input type="hidden" value='{{secrete}}' name='secret'>
+        <input type="hidden" value='提交' name='create'>
+    </form>
+    <form name="inp" action="" method="post">
+        <input type="submit" value="匹配" id='start' name='match'>
+        <input type="hidden" value='' name='cln'id='CN' >
+        <input type="hidden" value='{{nam}}' name='name'>
+        <input type="hidden" value='{{secrete}}' name='secret'>
+        <input type="hidden" value='提交' name='create'>
+    </form>
+    <form name="inp" action="" method="post">
+        <input type="submit" value="删除套牌" id='delet' name='match'>
+        <input type="hidden" value='{{nam}}' name='name'>
+        <input type="hidden" value='' name='cln'id='CD' >
+        <input type="hidden" value='{{secrete}}' name='secret'>
+        <input type="hidden" value='提交' name='create'>
+    </form>
+    <form name="inp" action="" method="post">
+        <input type="submit" value="更改套牌" id='change' name='match'>
+        <input type="hidden" value='{{nam}}' name='name'>
+        <input type="hidden" value='' name='cln'id='CC' >
+        <input type="hidden" value='{{secrete}}' name='secret'>
+        <input type="hidden" value='提交' name='create'>
+    </form>
+</body>
+</html>
