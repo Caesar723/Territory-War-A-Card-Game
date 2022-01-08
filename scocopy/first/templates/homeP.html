@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <script>
+        window.onload = function () {
+            var arr = {"jg":[1,2,3],"kp":['123','99'],"zx":[],"xb":[]}
+            var playercount = 1;
+            socket = new WebSocket("ws://127.0.0.1:8000/wss/123/");
+            var font = document.getElementsByName("2");
+            var wel = document.createTextNode('welcome');
+            var wai = document.createTextNode('wait');
+            var node = document.createElement("div");
+            var gameWin = document.getElementById("game");
+            var touchCheck = true;
+            
+
+            function getLocation() {
+                
+                var name = (/people\d+/.exec((document.getElementById("3").textContent).slice(5)))[0];
+                console.log(name);
+                for (var i of Object.keys(arr)) {
+                    
+                    for (var ii of arr[i]) {
+                        console.log(ii);
+                        if (ii == name) {
+                            return [arr[i],i];
+                        }
+                    }
+                }
+            }
+            function getAllpeople() {
+                var ar = [];
+                for (var i of Object.keys(arr)) {
+                    for (var ii of arr[i]) {
+                        console.log(ii);
+                        ar.push(ii);
+                    }
+
+                }
+                return ar;
+            }
+            for (var i = 0; i < 3; i++) {
+                font[i].onclick = function () {
+                    socket.send(this.id);
+                    var lo = document.getElementById("start");
+                    if (this.id == 's') {
+                        wai = document.createTextNode('剪刀');
+                    }
+                    else if (this.id == 'p') {
+                        wai = document.createTextNode('布');
+                    } else {
+                        wai = document.createTextNode('石头');
+                    }
+                    
+                    try {
+                        lo.replaceChild(wai, lo.firstChild);
+                    } catch { }
+                }
+            }
+            for (var ii = 3; ii < 7; ii++) {
+                font[ii].onmouseover = function (event) {
+                    if (touchCheck == true){
+                        node = document.createElement("div");
+                        node.style = "position:absolute;left:" + this.x + "px;top:" + this.y + "px;background-color:#FFFFFF;";
+                        for (var iii = 0; iii < arr[this.id].length; iii++) {
+                            var tex = document.createTextNode(arr[this.id][iii]);
+                            var br = document.createElement("br");
+                            node.appendChild(tex);
+                            node.appendChild(br);
+
+                        }
+                        this.appendChild(node);
+                        touchCheck = false;
+
+                    }
+                }
+                font[ii].onmouseout = function (event) {
+                    
+                    this.removeChild(node);
+                    touchCheck = true;
+
+                }
+            }
+
+
+            socket.onopen = function (event) {
+
+                
+            }
+            socket.onmessage = function (event) {
+                if (event.data[0] == 'C') {
+                    var getstr = event.data.slice(1);
+                    var ar = getstr.split(" ");
+                    console.log(ar);
+                    for (var i  of Object.keys(arr)) {
+                        var newarr = [];
+                        for (var ii = 0; ii < ar.length; ii++) {
+                            var spl = ar[ii].split("-");
+                            if (i == spl[1]) {
+                                newarr.push(spl[0]);
+                            }
+                        }
+                        arr[i] = newarr;
+                    }
+
+
+                }
+                else if (event.data[0] == 'A') {
+                    var get = event.data.slice(1);
+                    playercount = 1;
+                    var ar = get.split(" ");
+                    //console.log(arr.length);
+                    for (var i = 4; i < Object.keys(arr).length; i++) {
+                        console.log(Object.keys(arr)[i]);
+                        delete arr[Object.keys(arr)[i]];
+                        
+                    }
+                    for (var getstr of ar) {
+                        
+                        var lo = document.getElementById("p" + playercount);
+
+                        //console.log((getstr.split('-'))[0]);
+                        arr[(getstr.split('-'))[1]] = [(getstr.split('-'))[0]];
+                        lo.value = (getstr.split('-'))[1];
+                        //console.log(arr);
+                        lo.replaceChild(document.createTextNode((getstr.split('-'))[1]), lo.firstChild);
+                        lo.onmouseover = function (event) {
+                            if (touchCheck == true) {
+                                node = document.createElement("div");
+                                node.style = "position:absolute;left:" + this.x + "px;top:" + this.y + "px;background-color:#FFFFFF;";
+                                for (var iii = 0; iii < arr[this.value].length; iii++) {
+                                    var tex = document.createTextNode(arr[this.value][iii]);
+                                    var br = document.createElement("br");
+                                    node.appendChild(tex);
+                                    node.appendChild(br);
+
+                                }
+                                this.appendChild(node);
+                                touchCheck = false;
+
+                            }
+                        }
+                        lo.onmouseout = function (event) {
+
+                            this.removeChild(node);
+                            touchCheck = true;
+
+                        }
+
+                        playercount++;
+                    }
+                    for (var i = ar.length; i < 4;i++) {
+                        var lo = document.getElementById("p" + playercount);
+                        lo.replaceChild(document.createTextNode("p" + playercount), lo.firstChild);
+                        lo.onmouseover = function (event) { }
+                        lo.onmouseout = function (event) { }
+                    }
+                }
+                else if (event.data[0] == 'W') {
+                    console.log("win");
+                    var layout = document.createElement("div");
+                    layout.style = "float:right;height:60px;background-color:#FFFFFF";
+                    var arrBut = ['移动', '学习技能', '击打'];
+                    var loc = getLocation();
+                    console.log(loc);
+                    for (But of arrBut) {
+                        var button = document.createElement("div");
+                        button.style = "float:right;height:60px;background-color:#000000;color:white;padding:10px;";
+                        button.appendChild(document.createTextNode(But));
+                        if (But == "移动") {
+                            button.onclick = function (event) {
+                                for (var ii = 3; ii < Object.keys(arr).length + 3; ii++) {
+                                    font[ii].onclick = function (event) {
+                                        socket.send("R" + this.id);
+                                        for (var iii = 3; ii < Object.keys(arr).length + 3; iii++) {
+                                            font[iii].onclick = function (event) { }
+                                        }
+                                        try {
+                                            lo.replaceChild(document.createTextNode('welcome'), lo.firstChild);
+                                        } catch { }
+                                        gameWin.style = "line-height:30px;background-color:#e0e0e0;height: 600px;padding: 10px;overflow: scroll;padding: 5px; "
+                                    }
+                                }
+                                var lo = document.getElementById("start");
+                                try {
+                                    lo.replaceChild(document.createTextNode('点击想去的地方'), lo.firstChild);
+                                    gameWin.style = "line-height:30px;background-color:#505050;height: 600px;padding: 10px;overflow: scroll;padding: 5px; "
+                                } catch { }
+                                gameWin.removeChild(layout);
+                            }
+                        } else if (But == "学习技能" && loc[1][0] != 'h' && loc[1][0] != 'k') {
+                            button.onclick = function (event) {
+                                socket.send("S");
+                                
+                                gameWin.removeChild(layout);
+
+                            }
+                        }
+                        else if (But == "击打" && (loc[0].length > 1 || loc[1][0] == 'k')) {
+                            console.log("hit");
+                            button.onclick = function (event) {
+                                var name = (/people\d+/.exec((document.getElementById("3").textContent).slice(5)))[0];
+                                var hitlayout = document.createElement("div");
+                                hitlayout.style = "position:absolute;left:500px;top:400px;background-color:#FeFeFe";
+                                if (loc[1][0] != 'k') {
+                                    for (var i of loc[0]) {
+                                        if (i != name) {
+                                            var hitp = document.createElement("div");
+                                            hitp.style = "background-color:#000000;font-size:200%;color:#FFFFFF";
+                                            hitp.name = i;
+                                            hitp.appendChild(document.createTextNode(i));
+                                            hitp.onclick = function (event) {
+                                                socket.send("H" + this.name);
+                                                gameWin.removeChild(hitlayout);
+
+                                            }
+                                            hitlayout.appendChild(hitp);
+                                        }
+
+                                    }
+                                }
+                                else {
+                                    var ap = getAllpeople();
+                                    console.log(ap);
+                                    for (var i of ap) {
+                                        if (i != name) {
+                                            var hitp = document.createElement("div");
+                                            hitp.style = "background-color:#000000;font-size:200%;color:#FFFFFF";
+                                            hitp.name = i;
+                                            hitp.appendChild(document.createTextNode(i));
+                                            hitp.onclick = function (event) {
+                                                socket.send("H" + this.name);
+                                                gameWin.removeChild(hitlayout);
+
+                                            }
+                                            hitlayout.appendChild(hitp);
+                                        }
+
+                                    }
+                                }
+                                gameWin.appendChild(hitlayout);
+
+                                //socket.send("H");
+
+                                gameWin.removeChild(layout);
+
+                            }
+                        }
+
+                        layout.appendChild(button);
+                        
+
+                    }
+                    gameWin.appendChild(layout);
+                    var lo = document.getElementById("start");
+                    try {
+                        lo.replaceChild(wel, lo.firstChild);
+                    }
+                    catch { }
+                    
+                    
+                    
+                }
+                else if (event.data[0] == 'P') {
+                    var layall = document.getElementById("all3");
+                    var div = document.createElement("div");
+                    
+                    div.style = " background-color:#444444;width: 150px;color: white;height: 200px;padding: 5px;overflow: scroll;padding: 5px;"
+                    div.id = "people";
+
+                    var get = event.data.slice(1);
+                    for (var i of get.split(" ")) {
+                        var p = document.createElement("p");
+                        p.appendChild(document.createTextNode(i));
+                        div.appendChild(p)
+                    }
+                    layall.replaceChild(div,document.getElementById("people"))
+                }
+                else
+                {
+                    //inp.value=event.data;
+                    //print(event.data[0])
+                    var lo = document.getElementById("start");
+                    try {
+                        lo.replaceChild(wel, lo.firstChild);
+                    }
+                    catch { }
+                    var fon = document.getElementById("3");
+                    var br = document.createElement("p");
+                    var tex = document.createTextNode(event.data);
+                    br.appendChild(tex);
+                    fon.appendChild(br);
+                }
+            }
+            function send() {
+                socket.send(inp.value);
+
+            }
+        }
+    </script>
+</head>
+<body>
+    <div style="line-height:30px;
+    background-color:#000000;
+    text-align:center;
+    padding:5px;
+    color:white;
+    " id="start">
+    </div>
+<div style="line-height:30px;
+    background-color:#eeeeee;
+    width:150px;
+    height:600px;
+    padding:5px;
+    float:left;
+    overflow:scroll;
+    padding:5px;" id='all3' >
+    <div style="line-height:30px;
+        background-color:#eeeeee;
+        width:150px;
+        height:400px;
+        padding:5px;
+        float:left;
+        overflow:scroll;
+        padding:5px;" id='3' >
+    </div>
+    <div style="
+        background-color:#444444;
+        width:150px;
+        color:white;
+        height:200px;
+        padding:5px;
+    
+        overflow:scroll;
+        padding:5px;" id='people' >
+    </div>
+    </div>
+
+<div style="line-height:30px;
+    background-color:#e0e0e0;
+
+    height:600px;
+    padding:10px;
+
+    overflow:scroll;
+    padding:5px;" id="game">
+    <img src='static/jian.jpeg' value='jiandao' name='2' width="60" height="60" id='s'>
+
+    <img src='static/shi.jpeg' value='shitou' name='2' width="60" height="60" id='r'>
+
+    <img src='static/bu.jpeg' value='bu' name='2' width="60" height="60" id='p'>
+    <div name='2' style="position:absolute;left:900px;top:340px" id="jg">
+        <img src='static/jg.jpeg' value='jiandao' width="60" height="60"/>
+    </div>
+
+    <div name='2' style="position: absolute; left: 500px; top: 480px" id="kp">
+        <img src='static/kp.jpeg' value='shitou' width="60" height="60" />
+    </div>
+
+    <div name='2' style="position: absolute; left: 700px; top: 200px" id="zx">
+        <img src='static/zx.jpeg' value='bu' width="60" height="60" />
+    </div>
+
+    <div name='2' style="position: absolute; left: 380px; top: 300px" id="xb">
+        <img src='static/xb.jpeg' value='jiandao' width="60" height="60" />
+    </div>
+    <div name='2' style="position: absolute; background-color: #FFFFFF; left: 280px; top: 200px " id="p1">
+        p1
+    </div>
+    <div name='2' style="position: absolute; background-color: #FFFFFF; left: 900px; top: 580px " id="p2">
+        p2
+    </div>
+    <div name='2' style="position: absolute; background-color: #FFFFFF; left: 1000px; top: 210px " id="p3">
+       p3
+    </div>
+    <div name='2' style="position: absolute; background-color: #FFFFFF; left: 250px; top: 560px" id="p4">
+       p4
+    </div>
+
+</div>
+
+
+
+</body>
+</html>
