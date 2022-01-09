@@ -88,10 +88,35 @@ you can over override:
 </br>**whenSendData(self,MyMaster,Master):#used to make Aura**
 </br>**whenTermFinish(self,MyMaster,Master):# when round finish use this function**
 </br>
+</br></br>
 The class called **Master** is protagonist
-
-
+</br>
+The **live** is your live
+</br>
+**groundList** is your cost bar
+</br>
+**cardHand** **cardGround** **cardStorage** **tomb**  all store **card** object
+</br>
+**cardHand** store the cards in your hand
+</br>
+**cardGround** store the cards in your Battle field
+</br>
+**cardStorage** store the cards in your cards library
+</br>
+**tomb** store the **servant** who have been died
+</br>
+**getCard(self,num):** is to draw a card , it will return the array which contain the objects you get
+</br>
+</br>
 </br>
 Now start to make a card, go to /CardGame/first/cardServent.py
+</br>
+This is the example
+</br>
+![example](http://tiebapic.baidu.com/forum/pic/item/12d2197b02087bf4be8f6b38b7d3572c10dfcf43.jpg)
+</br>
+you must override the founction to create the skill
+</br>
+**warning**: your subclass name must the same as your cards **name**
 
 
