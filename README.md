@@ -52,6 +52,8 @@ In this game you can click '新建套牌' to create a deck.
 After creating a deck, you can click '匹配' to match a opponent, waiting for the opponent.
 </br>
 ![example](http://tiebapic.baidu.com/forum/pic/item/a423104f78f0f736a5b816185755b319ebc4132f.jpg)
+![BACON 2022-09-09 19 47 27](https://user-images.githubusercontent.com/76422688/189645695-7328a2e6-9fa2-4720-a501-61959c2d1bb3.jpeg)
+
 </br>
 </br>
 </br>
